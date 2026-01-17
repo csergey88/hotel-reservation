@@ -1,16 +1,26 @@
 pipeline{
     agent any
 
+    environment {
+        VENV_DIR = 'venv'
+    }
+
     stages{
-        stage('Build'){
+        stage('Cloning Repository'){
             steps{
-                echo 'Building the application...'
+                echo 'Cloning the repository...'
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: '29081395-60db-4b6c-ac89-07b53967d992', url: 'https://github.com/csergey88/hotel-reservation']])
             }
         }
-        stage('Test'){
+        stage('Setup Environment'){
             steps{
-                echo 'Testing the application...'
+                echo 'Setting up the environment...'
+                sh '''
+                python3 -m venv $VENV_DIR'
+                source $VENV_DIR/bin/activate
+                pip install --upgrade pip
+                pip install -e .
+                '''
             }
         }
         stage('Deploy'){
